@@ -1,0 +1,8 @@
+#Configure datasource
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/recommendation
+    username: root
+    password: root
+    schema: schema-all.sql
