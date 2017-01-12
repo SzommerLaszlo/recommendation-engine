@@ -7,3 +7,5 @@ target
 import-dataset/target/
 logs
 dataset/*
+/vagrant-hadoop/.vagrant/
+/vagrant-hadoop/resources/binaries/
