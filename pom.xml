@@ -27,6 +27,7 @@
 
   <modules>
     <module>import-dataset</module>
+    <module>vagrant-hadoop</module>
   </modules>
 
   <dependencyManagement>
