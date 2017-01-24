@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:hdp="http://www.springframework.org/schema/hadoop"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                    http://www.springframework.org/schema/beans/spring-beans.xsd
+                    http://www.springframework.org/schema/hadoop
+                    http://www.springframework.org/schema/hadoop/spring-hadoop.xsd
+					          http://www.springframework.org/schema/batch
+	                  http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+  <hdp:configuration register-url-handler="false" properties-location="${xd.config.home}/hadoop.properties">
+    fs.default.name=${spring.hadoop.fsUri}
+  </hdp:configuration>
+
+  <hdp:tool-tasklet id="mahout-tasklet" jar="${xd.module.home}/job/recommender/lib/mahout-mr-0.12.2.jar"
+                    tool-class="org.apache.mahout.cf.taste.hadoop.similarity.item.ItemSimilarityJob">
+    <hdp:arg value="-i/xd/hdfsImport"/>
+    <hdp:arg value="-o/xd/hdfsImport/postsResults"/>
+    <hdp:arg value="-sSIMILARITY_LOGLIKELIHOOD"/>
+    <hdp:arg value="-booleanData=false"/>
+  </hdp:tool-tasklet>
+
+  <job id="job" xmlns="http://www.springframework.org/schema/batch">
+    <step id="step1">
+      <tasklet ref="mahout-tasklet"/>
+    </step>
+  </job>
+</beans>
