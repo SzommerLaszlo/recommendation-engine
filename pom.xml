@@ -7,6 +7,7 @@
     <java.version>1.8</java.version>
     <castor-xml.version>1.4.1</castor-xml.version>
     <spring-oxm.version>4.3.5.RELEASE</spring-oxm.version>
+    <mahout-mr.version>0.12.2</mahout-mr.version>
   </properties>
 
   <parent>
@@ -28,6 +29,7 @@
   <modules>
     <module>import-dataset</module>
     <module>vagrant-hadoop</module>
+    <module>recommendation-job</module>
   </modules>
 
   <dependencyManagement>
@@ -41,6 +43,11 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-oxm</artifactId>
         <version>${spring-oxm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.mahout</groupId>
+        <artifactId>mahout-mr</artifactId>
+        <version>${mahout-mr.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
