@@ -14,4 +14,8 @@ Creating the export job :
   job create mahout --definition "recommender" --deploy
   job launch mahout
 3. Export the data from hadoop hdfs back to sql
+  job create hdfsExport --definition "hdfsjdbc --resources=/xd/hdfsImport/postsResults/part-r-* --names=item_id_a,item_id_b,similarity --tableName=taste_item_similarity --delimiter='\t'" --deploy
+  job launch hdfsExport
+ 
+To verify the results you should be able to see the updated items in the SQL table.
 
