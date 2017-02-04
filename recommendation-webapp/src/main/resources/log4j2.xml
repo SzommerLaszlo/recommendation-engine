@@ -8,14 +8,14 @@
     <Console name="Console" target="SYSTEM_OUT">
       <PatternLayout pattern="${pattern}"/>
     </Console>
-    <RollingFile name="RollingFile" fileName="${project.basedir}/logs/import-dataset.log"
-                 filePattern="${project.basedir}/logs/${date:yyyy-MM}/import-dataset-%d{yyyy-MM-dd}-%i.log.gz">
+    <RollingFile name="RollingFile" fileName="${project.basedir}/logs/recommendation.log"
+                 filePattern="${project.basedir}/logs/${date:yyyy-MM}/recommendation-%d{yyyy-MM-dd}-%i.log.gz">
       <PatternLayout>
         <pattern>${pattern}</pattern>
       </PatternLayout>
       <Policies>
         <TimeBasedTriggeringPolicy/><!-- Rotated everyday -->
-        <SizeBasedTriggeringPolicy size="200 MB"/> <!-- Or every 100 MB -->
+        <SizeBasedTriggeringPolicy size="100 MB"/> <!-- Or every 100 MB -->
       </Policies>
     </RollingFile>
   </appenders>
@@ -25,6 +25,9 @@
       <appender-ref ref="Console"/> <!-- To console -->
       <appender-ref ref="RollingFile"/> <!-- And to a rotated file -->
     </root>
-    <logger name="org.exolab.castor.xml.BaseSax2EventFromStaxProducer" additivity="false"/>
+    <logger name="org.springframework.security" level="info">
+      <appender-ref ref="Console"/> <!-- To console -->
+      <appender-ref ref="RollingFile"/> <!-- And to a rotated file -->
+    </logger>
   </loggers>
 </configuration>

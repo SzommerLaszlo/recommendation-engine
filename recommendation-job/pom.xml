@@ -6,8 +6,10 @@
 
   <groupId>com.utcluj.recommender</groupId>
   <artifactId>recommender-job</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+
+  <description>This module is the actual job to calculate the similarities between the tags according to the input data.</description>
 
   <properties>
     <mahout-mr.version>0.12.2</mahout-mr.version>

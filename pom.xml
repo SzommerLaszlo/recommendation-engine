@@ -3,12 +3,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <properties>
-    <java.version>1.8</java.version>
-    <castor-xml.version>1.4.1</castor-xml.version>
-    <spring-oxm.version>4.3.5.RELEASE</spring-oxm.version>
-    <mahout-mr.version>0.12.2</mahout-mr.version>
-  </properties>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
@@ -26,10 +20,18 @@
     answered one.
   </description>
 
+  <properties>
+    <java.version>1.8</java.version>
+    <castor-xml.version>1.4.1</castor-xml.version>
+    <spring-oxm.version>4.3.5.RELEASE</spring-oxm.version>
+    <mahout-mr.version>0.12.2</mahout-mr.version>
+  </properties>
+
   <modules>
     <module>import-dataset</module>
     <module>vagrant-hadoop</module>
     <module>recommendation-job</module>
+    <module>recommendation-webapp</module>
   </modules>
 
   <dependencyManagement>
@@ -47,6 +49,11 @@
       <dependency>
         <groupId>org.apache.mahout</groupId>
         <artifactId>mahout-mr</artifactId>
+        <version>${mahout-mr.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.mahout</groupId>
+        <artifactId>mahout-integration</artifactId>
         <version>${mahout-mr.version}</version>
       </dependency>
     </dependencies>

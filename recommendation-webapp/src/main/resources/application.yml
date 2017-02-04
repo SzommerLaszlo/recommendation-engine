@@ -1,0 +1,13 @@
+#Configure the data source
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/recommendation?cachePrepStmts=true&elideSetAutoCommits=true&alwaysSendSetIsolation=false&cacheResultSetMetadata=true
+    username: root
+    password: root
+
+  thymeleaf:
+    cache: false
+
+user:
+  login-password : password
