@@ -1,6 +1,6 @@
 package com.utcluj.recommender.configuration;
 
-import com.utcluj.recommender.domain.UserRepository;
+import com.utcluj.recommender.repositories.UserRepository;
 import com.utcluj.recommender.service.CustomUserDetailsService;
 
 import org.springframework.beans.factory.annotation.Autowired;

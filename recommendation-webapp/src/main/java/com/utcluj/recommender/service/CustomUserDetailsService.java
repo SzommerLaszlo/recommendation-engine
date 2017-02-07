@@ -1,7 +1,7 @@
 package com.utcluj.recommender.service;
 
 import com.utcluj.recommender.domain.User;
-import com.utcluj.recommender.domain.UserRepository;
+import com.utcluj.recommender.repositories.UserRepository;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

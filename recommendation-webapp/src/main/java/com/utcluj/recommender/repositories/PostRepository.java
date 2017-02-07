@@ -1,4 +1,6 @@
-package com.utcluj.recommender.domain;
+package com.utcluj.recommender.repositories;
+
+import com.utcluj.recommender.domain.Post;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,5 +16,5 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
   Page<Post> findAllByPostTypeIdOrderByCreationDateDesc(Integer postTypeId, Pageable pageable);
 
   @Query(UNASWARED_POST_WITH_TAG)
-  List<Post> findByTagId(long id, Pageable pageable);
+  List<Post> findUnansweredByTagId(long id, Pageable pageable);
 }

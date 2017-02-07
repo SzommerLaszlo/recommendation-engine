@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "TAGS")
-@Cacheable(true)
+@Cacheable
 public class Tag {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

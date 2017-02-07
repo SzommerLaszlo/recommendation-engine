@@ -1,4 +1,6 @@
-package com.utcluj.recommender.domain;
+package com.utcluj.recommender.repositories;
+
+import com.utcluj.recommender.domain.User;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

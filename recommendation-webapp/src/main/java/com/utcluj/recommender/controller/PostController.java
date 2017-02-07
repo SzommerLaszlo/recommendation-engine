@@ -2,10 +2,10 @@ package com.utcluj.recommender.controller;
 
 import com.utcluj.recommender.domain.PageWrapper;
 import com.utcluj.recommender.domain.Post;
-import com.utcluj.recommender.domain.PostRepository;
+import com.utcluj.recommender.repositories.PostRepository;
 import com.utcluj.recommender.domain.Tag;
 import com.utcluj.recommender.domain.User;
-import com.utcluj.recommender.domain.UserRepository;
+import com.utcluj.recommender.repositories.UserRepository;
 
 import org.apache.mahout.cf.taste.recommender.ItemBasedRecommender;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
@@ -88,20 +88,20 @@ public class PostController {
     List<Post> matchingPosts = new ArrayList<>();
 
     // Recommendations by Question's Tags
-    matchingPosts.addAll(recommendPostsByItemsTags(parentPost));
+    matchingPosts.addAll(recommendUnansweredPostsByParentsTags(parentPost));
 
     // Recommendations by User's History
 //		matchingPosts.addAll(recommendPostsByUsers(currentUser));
 
     // Recommendations By Both
 //		matchingPosts.addAll(recommendPostsByUsers(currentUser));
-//		matchingPosts.addAll(recommendPostsByItemsTags(parentPost));
+//		matchingPosts.addAll(recommendUnansweredPostsByParentsTags(parentPost));
 
     if (matchingPosts.size() < 3) {
       items = recommendItems(parentPost.getTags());
 
       for (RecommendedItem item : items) {
-        List<Post> posts = postRepository.findByTagId(item.getItemID(), new PageRequest(0, 3));
+        List<Post> posts = postRepository.findUnansweredByTagId(item.getItemID(), new PageRequest(0, 3));
 
         matchingPosts.addAll(posts);
       }
@@ -122,7 +122,7 @@ public class PostController {
     return "post/show";
   }
 
-  private List<Post> recommendPostsByItemsTags(Post parentPost) throws Exception {
+  private List<Post> recommendUnansweredPostsByParentsTags(Post parentPost) throws Exception {
     List<RecommendedItem> items = new ArrayList<>();
 
     for (Tag tag : parentPost.getTags()) {
@@ -132,7 +132,7 @@ public class PostController {
     List<Post> matchingPosts = new ArrayList<>();
 
     for (RecommendedItem item : items) {
-      List<Post> posts = postRepository.findByTagId(item.getItemID(), new PageRequest(0, 3));
+      List<Post> posts = postRepository.findUnansweredByTagId(item.getItemID(), new PageRequest(0, 3));
 
       matchingPosts.addAll(posts);
     }
@@ -145,7 +145,7 @@ public class PostController {
     List<Post> matchingPosts = new ArrayList<>();
 
     for (RecommendedItem item : items) {
-      List<Post> posts = postRepository.findByTagId(item.getItemID(), new PageRequest(0, 3));
+      List<Post> posts = postRepository.findUnansweredByTagId(item.getItemID(), new PageRequest(0, 3));
 
       matchingPosts.addAll(posts);
     }

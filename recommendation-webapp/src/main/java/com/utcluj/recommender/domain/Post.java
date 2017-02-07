@@ -13,6 +13,10 @@ import javax.persistence.*;
 @Entity
 @Table(name = "POSTS")
 public class Post {
+  private static final int UP_VOTED = 2;
+  private static final int DOWN_VOTED = 3;
+  private static final int PRIME_NUMBER = 29;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -79,9 +83,9 @@ public class Post {
   public void calculateVotes() {
     if (!CollectionUtils.isEmpty(votes)) {
       for (Vote vote : votes) {
-        if (vote.getVoteType() == 2) {
+        if (vote.getVoteType() == UP_VOTED) {
           voteCount++;
-        } else if (vote.getVoteType() == 3) {
+        } else if (vote.getVoteType() == DOWN_VOTED) {
           voteCount--;
         }
       }
@@ -260,7 +264,7 @@ public class Post {
     int result;
 
     if (getId() != null) {
-      result = 29 * getId().hashCode();
+      result = PRIME_NUMBER * getId().hashCode();
     } else {
       result = super.hashCode();
     }

@@ -8,8 +8,8 @@
     <Console name="Console" target="SYSTEM_OUT">
       <PatternLayout pattern="${pattern}"/>
     </Console>
-    <RollingFile name="RollingFile" fileName="${project.basedir}/logs/recommendation.log"
-                 filePattern="${project.basedir}/logs/${date:yyyy-MM}/recommendation-%d{yyyy-MM-dd}-%i.log.gz">
+    <RollingFile name="RollingFile" fileName="./logs/recommendation.log"
+                 filePattern="./logs/${date:yyyy-MM}/recommendation-%d{yyyy-MM-dd}-%i.log.gz">
       <PatternLayout>
         <pattern>${pattern}</pattern>
       </PatternLayout>
