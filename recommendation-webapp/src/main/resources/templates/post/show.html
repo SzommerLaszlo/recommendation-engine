@@ -4,7 +4,7 @@
       xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
       layout:decorator="layout">
 <head>
-  <title>Spring Overflow</title>
+  <title>Ask Ubuntu Overflow</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
@@ -34,7 +34,6 @@
             <div class="col-md-offset-9 askuser">
               <div
                   th:text="'asked ' + ${#dates.format(post.creationDate, 'MMM dd')} + ' \'' + ${#dates.format(post.creationDate, 'YY')} + ' at ' + ${#dates.format(post.creationDate, 'HH:mm')}">
-                Asked 1 million years ago
               </div>
               <div th:text="${post.ownerUser.displayName}">By me</div>
             </div>
@@ -42,25 +41,22 @@
               <div class="comment" th:each="comment : ${post.comments}">
                 <div class="col-md-offset-1"
                      th:text="${comment.value} + ' - ' + ${comment.user.displayName} + ' ' + ${#dates.format(comment.creationDate, 'MMM dd')} + ' at ' + ${#dates.format(comment.creationDate, 'HH:mm')}">
-                  My Comment
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div class="row">
-          <h1 class="col-md-12" th:text="${#lists.size(post.answers)} + ' Answers'" th:if="${#lists.size(post.answers)}">One
-            Million Answers...</h1>
+          <h1 class="col-md-12" th:text="${#lists.size(post.answers)} + ' Answers'" th:if="${#lists.size(post.answers)}"></h1>
           <div class="answers col-md-12">
             <div class="col-md-12" th:classappend="not ${answerStat.first}? 'answer'" th:each="answer : ${post.answers}"
                  th:if="${#lists.size(post.answers)}">
               <div class="col-md-1 text-center" th:text="${answer.voteCount}">Votes</div>
               <div class="col-md-11">
-                <div th:utext="${answer.body}">This is the text of the answer</div>
+                <div th:utext="${answer.body}"></div>
                 <div class="col-md-offset-8 answeruser">
                   <div
                       th:text="'answered ' + ${#dates.format(answer.creationDate, 'MMM dd')} + ' \'' + ${#dates.format(answer.creationDate, 'YY')} + ' at ' + ${#dates.format(answer.creationDate, 'HH:mm')}">
-                    Answered 1 million years ago
                   </div>
                   <div th:text="${answer.ownerUser.displayName}">By me</div>
                 </div>
@@ -68,7 +64,6 @@
                   <div class="comment" th:each="comment : ${answer.comments}">
                     <div class="col-md-offset-1"
                          th:text="${comment.value} + ' - ' + ${comment.user.displayName} + ' ' + ${#dates.format(comment.creationDate, 'MMM dd')} + ' at ' + ${#dates.format(comment.creationDate, 'HH:mm')}">
-                      My Comment
                     </div>
                   </div>
                 </div>
@@ -96,7 +91,6 @@
           </div>
         </div>
       </div>
-      <div class="col-md-3"><img src="/images/banner2.png" alt="Spring can do that!"/></div>
     </div>
   </div>
 
