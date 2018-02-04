@@ -16,26 +16,39 @@
         one of these other questions:</p>
       <div th:each="recommendedPost : ${recommendations}">
         <div><a class="bold" href="post/show.html" th:href="@{'/post/' + ${recommendedPost.id}}"
-                th:text="${recommendedPost.title}">My Post</a></div>
+                th:text="${recommendedPost.title}"></a>
+          <ul class="list-inline tags">
+            Tags:
+              <li th:each="recommendedPostTag : ${recommendedPost.tags}" th:text="${recommendedPostTag.tag}"></li>
+          </ul>
+        </div>
       </div>
     </div>
-    <h1 th:text="${post.title}">Can this really work?</h1>
+    <h1 th:text="${post.title}"></h1>
   </div>
   <div class="container">
+    <div class="row" style="margin-bottom: 15px">
+      <div class="col-md-9">
+        <div class="row">
+          <div class="col-md-11" style="space">
+            <ul class="list-inline tags">
+              <li th:each="curTag : ${post.tags}" th:text="${curTag.tag}"></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="row">
       <div class="col-md-9">
         <div class="row">
-          <div class="col-md-1 text-center" th:text="${post.voteCount}">Votes</div>
+          <div class="col-md-1 text-center" th:text="'Votes '+ ${post.voteCount}"></div>
           <div class="col-md-11">
-            <div th:utext="${post.body}">This is the text of the question</div>
-            <ul class="list-inline tags">
-              <li th:each="curTag : ${post.tags}" th:text="${curTag.tag}">My Tag</li>
-            </ul>
+            <div th:utext="${post.body}"></div>
             <div class="col-md-offset-9 askuser">
               <div
                   th:text="'asked ' + ${#dates.format(post.creationDate, 'MMM dd')} + ' \'' + ${#dates.format(post.creationDate, 'YY')} + ' at ' + ${#dates.format(post.creationDate, 'HH:mm')}">
               </div>
-              <div th:text="${post.ownerUser.displayName}">By me</div>
+              <div th:text="${post.ownerUser.displayName}"></div>
             </div>
             <div class="comments" th:if="${#lists.size(post.comments)}">
               <div class="comment" th:each="comment : ${post.comments}">
@@ -51,14 +64,14 @@
           <div class="answers col-md-12">
             <div class="col-md-12" th:classappend="not ${answerStat.first}? 'answer'" th:each="answer : ${post.answers}"
                  th:if="${#lists.size(post.answers)}">
-              <div class="col-md-1 text-center" th:text="${answer.voteCount}">Votes</div>
+              <div class="col-md-1 text-center" th:text="'Votes:' + ${answer.voteCount}"></div>
               <div class="col-md-11">
                 <div th:utext="${answer.body}"></div>
                 <div class="col-md-offset-8 answeruser">
                   <div
                       th:text="'answered ' + ${#dates.format(answer.creationDate, 'MMM dd')} + ' \'' + ${#dates.format(answer.creationDate, 'YY')} + ' at ' + ${#dates.format(answer.creationDate, 'HH:mm')}">
                   </div>
-                  <div th:text="${answer.ownerUser.displayName}">By me</div>
+                  <div th:text="${answer.ownerUser.displayName}"></div>
                 </div>
                 <div th:if="${#lists.size(answer.comments)}">
                   <div class="comment" th:each="comment : ${answer.comments}">
@@ -71,6 +84,7 @@
             </div>
           </div>
         </div>
+
         <div class="row">
           <div class="col-md-12" sec:authorize="hasRole('ROLE_AUTHENTICATED')" id="yourAnswer">
             <h1>Your Answer</h1>

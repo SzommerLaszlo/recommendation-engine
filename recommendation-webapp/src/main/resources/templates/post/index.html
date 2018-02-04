@@ -32,12 +32,12 @@
             <div>views</div>
           </td>
           <td>
-            <a class="bold" href="post/show.html" th:href="@{'/post/' + ${post.id}}" th:text="${post.title}">My Post</a>
+            <a class="bold" href="post/show.html" th:href="@{'/post/' + ${post.id}}" th:text="${post.title}"></a>
             <div>
               <ul class="list-inline tags">
-                <li th:each="curTag : ${post.tags}" th:text="${curTag.tag}">My Tag</li>
+                <li th:each="curTag : ${post.tags}" th:text="${curTag.tag}"></li>
               </ul>
-              <div class="text-right gray" th:text="'asked by ' + ${post.ownerUser.displayName}">asked</div>
+              <div class="text-right gray" th:text="'asked by ' + ${post.ownerUser.displayName}"></div>
             </div>
           </td>
         </tr>

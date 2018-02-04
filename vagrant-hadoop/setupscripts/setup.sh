@@ -6,7 +6,7 @@ HADOOP_ARCHIVE=hadoop-2.7.3.tar.gz
 HADOOP_MIRROR_DOWNLOAD=http://mirror.evowise.com/apache/hadoop/common/hadoop-2.7.3/hadoop-2.7.3.tar.gz
 	
 function fileExists {
-	FILE=/vagrant/resources/binaries$1
+	FILE=/vagrant/resources/binaries/$1
 	if [ -e $FILE ]
 	then
 		return 0
@@ -24,7 +24,7 @@ function disableFirewall {
 
 function installLocalHadoop {
 	echo "install hadoop from local file"
-	FILE=/vagrant/resources/$HADOOP_ARCHIVE
+	FILE=/vagrant/resources/binaries/$HADOOP_ARCHIVE
 	tar -xzf $FILE -C /usr/local
 }
 

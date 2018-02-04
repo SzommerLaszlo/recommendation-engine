@@ -2,12 +2,12 @@
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/recommendation?cachePrepStmts=true&elideSetAutoCommits=true&alwaysSendSetIsolation=false&cacheResultSetMetadata=true
+    url: jdbc:mysql://localhost:3306/recommendation?cachePrepStmts=true&elideSetAutoCommits=true&alwaysSendSetIsolation=false&cacheResultSetMetadata=true&useSSL=false
     username: root
     password: root
 
   thymeleaf:
-    cache: false
+    cache: false #not working properly need to recompile the html file
 
 user:
   login-password : password

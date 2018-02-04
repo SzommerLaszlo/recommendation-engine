@@ -22,6 +22,8 @@ import javax.sql.DataSource;
 @EnableConfigurationProperties
 public class Application {
 
+  public static final String TAG_TAG_SIMILARITIES = "SELECT tag_id_a, tag_id_b, similarity FROM tag_to_tag_similarity";
+
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
   }
@@ -29,9 +31,8 @@ public class Application {
   @Bean
   ItemBasedRecommender recommender(DataSource dataSource) throws Exception {
     DataModel dataModel = new MySQLBooleanPrefJDBCDataModel(dataSource);
-    ItemSimilarity similarity = new MySQLJDBCInMemoryItemSimilarity(dataSource);
-    AllSimilarItemsCandidateItemsStrategy candidateItemsStrategy =
-        new AllSimilarItemsCandidateItemsStrategy(similarity);
+    ItemSimilarity similarity = new MySQLJDBCInMemoryItemSimilarity(dataSource, TAG_TAG_SIMILARITIES);
+    AllSimilarItemsCandidateItemsStrategy candidateItemsStrategy = new AllSimilarItemsCandidateItemsStrategy(similarity);
     return new GenericItemBasedRecommender(dataModel, similarity, candidateItemsStrategy, candidateItemsStrategy);
   }
 }
