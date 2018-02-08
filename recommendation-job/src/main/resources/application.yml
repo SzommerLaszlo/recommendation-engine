@@ -1,0 +1,18 @@
+#Configure datasource
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/recommendation
+    username: root
+    password: root
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#logging:
+#  level :
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.type: TRACE

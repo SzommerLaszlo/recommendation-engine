@@ -5,7 +5,9 @@ DROP TABLE IF EXISTS COMMENTS;
 DROP TABLE IF EXISTS VOTES;
 DROP TABLE IF EXISTS POSTS;
 DROP TABLE IF EXISTS USERS;
-DROP TABLE IF EXISTS tag_to_tag_similarity;
+DROP TABLE IF EXISTS tag_to_tag_similarity_mahout;
+DROP TABLE IF EXISTS tag_to_tag_similarity_cosine;
+DROP TABLE IF EXISTS tag_to_tag_similarity_loglikelihood;
 
 CREATE TABLE USERS (
   ID               BIGINT   NOT NULL PRIMARY KEY,
@@ -95,7 +97,23 @@ CREATE VIEW users_preferences AS
   GROUP BY PP.OWNER_USER_ID, T.ID
   ORDER BY NULL;
 
-CREATE TABLE tag_to_tag_similarity (
+CREATE TABLE tag_to_tag_similarity_mahout (
+  tag_id_a  BIGINT NOT NULL,
+  tag_id_b  BIGINT NOT NULL,
+  similarity FLOAT  NOT NULL,
+  PRIMARY KEY (tag_id_a, tag_id_b)
+)
+  ENGINE = InnoDB;
+
+CREATE TABLE tag_to_tag_similarity_cosine (
+  tag_id_a  BIGINT NOT NULL,
+  tag_id_b  BIGINT NOT NULL,
+  similarity FLOAT  NOT NULL,
+  PRIMARY KEY (tag_id_a, tag_id_b)
+)
+  ENGINE = InnoDB;
+
+CREATE TABLE tag_to_tag_similarity_loglikelihood (
   tag_id_a  BIGINT NOT NULL,
   tag_id_b  BIGINT NOT NULL,
   similarity FLOAT  NOT NULL,

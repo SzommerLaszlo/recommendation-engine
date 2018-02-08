@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="WARN" monitorInterval="60">
+  <properties>
+    <property name="pattern">%date{yyyy-MM-dd HH:mm:ss.SSS} [%15.15thread] %highlight{%-5level %-40.40logger{1.} : %msg%n}
+    </property>
+  </properties>
+  <appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="${pattern}"/>
+    </Console>
+    <RollingFile name="RollingFile" fileName="./logs/recommendation-job.log"
+                 filePattern="./logs/${date:yyyy-MM}/recommendation-job-%d{yyyy-MM-dd}-%i.log.gz">
+      <PatternLayout>
+        <pattern>${pattern}</pattern>
+      </PatternLayout>
+      <Policies>
+        <TimeBasedTriggeringPolicy/><!-- Rotated everyday -->
+        <SizeBasedTriggeringPolicy size="200 MB"/> <!-- Or every 100 MB -->
+      </Policies>
+    </RollingFile>
+  </appenders>
+
+  <loggers>
+    <root level="info"> <!-- We log everything -->
+      <appender-ref ref="Console"/> <!-- To console -->
+      <appender-ref ref="RollingFile"/> <!-- And to a rotated file -->
+    </root>
+    <logger name="org.exolab.castor.xml.BaseSax2EventFromStaxProducer" additivity="false"/>
+  </loggers>
+</configuration>
