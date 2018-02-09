@@ -5,6 +5,7 @@ import com.utcluj.common.TastePreferencesRepository;
 import com.utcluj.common.model.TagSimilarity;
 import com.utcluj.common.model.TastePreference;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +18,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Configuration
 @ComponentScan
@@ -47,73 +43,98 @@ public class Application implements CommandLineRunner {
   public void run(String... strings) {
     List<BigInteger> tagIdsWithExistingScores = tastePreferencesRepository.retrieveTagIdsWithExistingScores();
 
-    Iterable<TastePreference> allTastePreferences = tastePreferencesRepository.retrieveAll();
-    Map<BigInteger, Set<BigInteger>> mapOfTagIdAndUsers = buildMap(allTastePreferences);
-//    List<BigInteger> allUserIdsWhoHaveScoresOnTags =
-//        tastePreferencesRepository.findAllUsersWhoHaveScoresOnTags(tagIdsWithExistingScores.get(1), tagIdsWithExistingScores.get(123));
-//    List<BigDecimal> preferenceVectorTagA =
-//        tastePreferencesRepository.retrievePreferenceVectorForTag(tagIdsWithExistingScores.get(1), allUserIdsWhoHaveScoresOnTags);
-//    List<BigDecimal> preferenceVectorTagB =
-//        tastePreferencesRepository.retrievePreferenceVectorForTag(tagIdsWithExistingScores.get(123), allUserIdsWhoHaveScoresOnTags);
-//    double cosineSimilarity = Similarity.calculateCosineSimilarity(preferenceVectorTagA, preferenceVectorTagB);
-//    System.out.println(cosineSimilarity);
-//    calculateAndInsertCosineSimilarity(tagIdsWithExistingScores);
+    List<TastePreference> allTastePreferences = tastePreferencesRepository.retrieveAll();
+    Map<BigInteger, Set<BigInteger>> tagIdAndUsersWhoScoredIt = buildTagUsersMapping(allTastePreferences);
+    calculateAndInsertCosineSimilarity(allTastePreferences, tagIdAndUsersWhoScoredIt, tagIdsWithExistingScores);
   }
 
-  private Map<BigInteger, Set<BigInteger>> buildMap(Iterable<TastePreference> allTastePreferences) {
-    Map<BigInteger, Set<BigInteger>> tagFilters = new HashMap<>();
-
-    Iterator<TastePreference> iterator = allTastePreferences.iterator();
-    while (iterator.hasNext()) {
-      TastePreference tastePreference = iterator.next();
-      Set<BigInteger> listOfUsers = tagFilters.get(tastePreference.getItemId());
-      if (listOfUsers == null){
+  /**
+   * Builds a map which contains for every tag_id the list of users who have scores for it.
+   */
+  private Map<BigInteger, Set<BigInteger>> buildTagUsersMapping(List<TastePreference> allTastePreferences) {
+    Map<BigInteger, Set<BigInteger>> tagUsersMapping = new HashMap<>();
+    for (TastePreference tastePreference : allTastePreferences) {
+      Set<BigInteger> listOfUsers = tagUsersMapping.get(tastePreference.getItemId());
+      if (listOfUsers == null) {
         Set<BigInteger> usersList = new HashSet();
-        listOfUsers.add(BigInteger.valueOf(tastePreference.getUserId()));
-        tagFilters.put(BigInteger.valueOf(tastePreference.getItemId()), listOfUsers);
-      }
-      else {
-        listOfUsers.add(BigInteger.valueOf(tastePreference.getUserId()));
+        usersList.add(tastePreference.getUserId());
+        tagUsersMapping.put(tastePreference.getItemId(), usersList);
+      } else {
+        listOfUsers.add(tastePreference.getUserId());
       }
     }
-    return tagFilters;
+    return tagUsersMapping;
   }
 
-  private void calculateAndInsertCosineSimilarity(List<BigInteger> tagIdsWithExistingScores) {
-    for (int i = 0; i < tagIdsWithExistingScores.size() - 1; i++) {
-      for (int j = i + 1; j < tagIdsWithExistingScores.size(); j++) {
-        List<BigInteger> allUserIdsWhoHaveScoresOnTags =
-            tastePreferencesRepository.findAllUsersWhoHaveScoresOnTags(tagIdsWithExistingScores.get(i), tagIdsWithExistingScores.get(j));
-        if (allUserIdsWhoHaveScoresOnTags.size() <= 0) {
-          LOG.error("No result found for user id pair : " + tagIdsWithExistingScores.get(i) + "<>" + tagIdsWithExistingScores.get(j));
+  private void calculateAndInsertCosineSimilarity(List<TastePreference> allTastePreferences,
+                                                  Map<BigInteger, Set<BigInteger>> tagIdAndUsersWithScores, List<BigInteger> listOfTagIds) {
+    List<TagSimilarity> tagSimilarities = new ArrayList<>();
+    for (int indexOfTagIdA = 0; indexOfTagIdA < listOfTagIds.size() - 1; indexOfTagIdA++) {
+      LOG.info("This is the n: " + indexOfTagIdA + " iteration");
+      for (int indexOfTagIdB = indexOfTagIdA + 1; indexOfTagIdB < listOfTagIds.size(); indexOfTagIdB++) {
+        Collection<BigInteger> intersection =
+            CollectionUtils.intersection(tagIdAndUsersWithScores.get(listOfTagIds.get(indexOfTagIdA)),
+                                         tagIdAndUsersWithScores.get(listOfTagIds.get(indexOfTagIdB)));
+        if (intersection.size() <= 0) {
+          LOG.debug("No result found for user id pair : " + listOfTagIds.get(indexOfTagIdA) + "<>" + listOfTagIds.get(indexOfTagIdB));
           continue;
         }
-        List<BigDecimal> preferenceVectorTagA =
-            tastePreferencesRepository.retrievePreferenceVectorForTag(tagIdsWithExistingScores.get(i), allUserIdsWhoHaveScoresOnTags);
-        List<BigDecimal> preferenceVectorTagB =
-            tastePreferencesRepository.retrievePreferenceVectorForTag(tagIdsWithExistingScores.get(j), allUserIdsWhoHaveScoresOnTags);
+
+        List<BigDecimal> preferenceVectorTagA = new ArrayList<>();
+        List<BigDecimal> preferenceVectorTagB = new ArrayList<>();
+        retrievePreferenceVectors(allTastePreferences, listOfTagIds, indexOfTagIdA, indexOfTagIdB, intersection, preferenceVectorTagA,
+                                  preferenceVectorTagB);
+
         float cosineSimilarity = Similarity.calculateCosineSimilarity(preferenceVectorTagA, preferenceVectorTagB);
-        if (Float.isNaN(cosineSimilarity)){
-          LOG.error("The calculations for tags " + tagIdsWithExistingScores.get(i) + " - " + tagIdsWithExistingScores.get(j) +
-          " and their vectors: " + preferenceVectorTagA.toString() + "; " + preferenceVectorTagB.toString() + " is not a number !");
+        if (Float.isNaN(cosineSimilarity)) {
+          LOG.debug("The calculations for tags " + listOfTagIds.get(indexOfTagIdA) + " - " + listOfTagIds.get(indexOfTagIdB) +
+                    " and their vectors: " + preferenceVectorTagA.toString() + "; " + preferenceVectorTagB.toString() + " is not a number !");
           continue;
         }
 
         TagSimilarity tagSimilarity = new TagSimilarity();
-        tagSimilarity.setTagIdA(tagIdsWithExistingScores.get(i).intValue());
-        tagSimilarity.setTagIdB(tagIdsWithExistingScores.get(j).intValue());
+        tagSimilarity.setTagIdA(listOfTagIds.get(indexOfTagIdA).intValue());
+        tagSimilarity.setTagIdB(listOfTagIds.get(indexOfTagIdB).intValue());
         tagSimilarity.setSimilarity(cosineSimilarity);
 
         TagSimilarity tagSimilarityMirror = new TagSimilarity();
-        tagSimilarityMirror.setTagIdA(tagIdsWithExistingScores.get(j).intValue());
-        tagSimilarityMirror.setTagIdB(tagIdsWithExistingScores.get(i).intValue());
+        tagSimilarityMirror.setTagIdA(listOfTagIds.get(indexOfTagIdB).intValue());
+        tagSimilarityMirror.setTagIdB(listOfTagIds.get(indexOfTagIdA).intValue());
         tagSimilarityMirror.setSimilarity(cosineSimilarity);
+        tagSimilarities.add(tagSimilarity);
+        tagSimilarities.add(tagSimilarityMirror);
 
-        tagSimilarityDao.createCosine(tagSimilarity);
-        tagSimilarityDao.createCosine(tagSimilarityMirror);
+        if (tagSimilarities.size() > 250) {
+          tagSimilarityDao.createBatchCosine(tagSimilarities);
+          LOG.info("A 250 batch size was sent, clearing the results and continue with the calculations.");
+          tagSimilarities.clear();
+        }
       }
     }
+    tagSimilarityDao.createBatchCosine(tagSimilarities);
+  }
 
-
+  private void retrievePreferenceVectors(List<TastePreference> allTastePreferences, List<BigInteger> listOfTagIds, int indexOfTagIdA,
+                                         int indexOfTagIdB, Collection<BigInteger> intersection, List<BigDecimal> preferenceVectorTagA,
+                                         List<BigDecimal> preferenceVectorTagB) {
+    for (BigInteger userId : intersection) {
+      boolean foundA = false;
+      boolean foundB = false;
+      for (TastePreference tastePreference : allTastePreferences) {
+        if (foundA == false && tastePreference.getItemId().intValue() == listOfTagIds.get(indexOfTagIdA).intValue()
+            && tastePreference.getUserId().intValue() == userId.intValue()) {
+          preferenceVectorTagA.add(BigDecimal.valueOf((long) tastePreference.getPreference()));
+          foundA = true;
+        }
+        if (foundB == false && tastePreference.getItemId().intValue() == listOfTagIds.get(indexOfTagIdB).intValue()
+            && tastePreference.getUserId().intValue() == userId.intValue()) {
+          preferenceVectorTagB.add(BigDecimal.valueOf((long) tastePreference.getPreference()));
+          foundB = true;
+        }
+        if (foundA && foundB) {
+          break;
+        }
+      }
+    }
   }
 }

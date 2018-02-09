@@ -13,8 +13,8 @@ import java.util.List;
 public interface TastePreferencesRepository extends CrudRepository<TastePreference, Long> {
 
   String FIND_USERS_WHO_HAVE_SCORES_FOR_TAGS =
-      "Select A.user_id from taste_preferences A"
-      + " inner join (select B.user_id from taste_preferences B where B.item_id = :tagIdB) as aliasB on A.user_id = aliasB.user_id"
+      "SELECT A.user_id FROM taste_preferences A"
+      + " inner join (SELECT B.user_id FROM taste_preferences B where B.item_id = :tagIdB) as aliasB on A.user_id = aliasB.user_id"
       + " where A.item_id = :tagIdA order by A.user_id asc";
 
   @Query(value = FIND_USERS_WHO_HAVE_SCORES_FOR_TAGS, nativeQuery = true)
@@ -27,11 +27,11 @@ public interface TastePreferencesRepository extends CrudRepository<TastePreferen
                                                   @Param(value = "usersList") List<BigInteger> usersWhoHaveScore);
 
   String TAGS_IDS_WITH_EXISTING_SCORES = "SELECT distinct item_id FROM taste_preferences order by item_id asc";
-
   @Query(value = TAGS_IDS_WITH_EXISTING_SCORES, nativeQuery = true)
   List<BigInteger> retrieveTagIdsWithExistingScores();
 
-  @Query(value = "select * from taste_preferences", nativeQuery = true)
+  String RETRIEVE_ALL_TASTE_PREFERENCES = "SELECT * FROM taste_preferences order by item_id asc";
+  @Query(value = RETRIEVE_ALL_TASTE_PREFERENCES, nativeQuery = true)
   List<TastePreference> retrieveAll();
 
 }

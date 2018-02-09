@@ -1,6 +1,6 @@
 package com.utcluj.common.model;
 
-import java.io.Serializable;
+import java.math.BigInteger;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,30 +8,32 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 
 @Entity
-@IdClass(TastePreference.TastePreferenceId.class)
-public class TastePreference implements Serializable {
+@IdClass(TastePreferenceId.class)
+public class TastePreference {
+
   @Id
   @Column(name = "user_id")
-  private int userId;
+  private BigInteger userId;
   @Id
   @Column(name = "item_id")
-  private int itemId;
+  private BigInteger itemId;
+
   @Column(name = "preference")
   private float preference;
 
-  public int getUserId() {
+  public BigInteger getUserId() {
     return userId;
   }
 
-  public void setUserId(int userId) {
+  public void setUserId(BigInteger userId) {
     this.userId = userId;
   }
 
-  public int getItemId() {
+  public BigInteger getItemId() {
     return itemId;
   }
 
-  public void setItemId(int itemId) {
+  public void setItemId(BigInteger itemId) {
     this.itemId = itemId;
   }
 
@@ -41,15 +43,5 @@ public class TastePreference implements Serializable {
 
   public void setPreference(float preference) {
     this.preference = preference;
-  }
-
-  public class TastePreferenceId implements Serializable {
-    private int userId;
-    private int itemId;
-
-    public TastePreferenceId(int userId, int itemId) {
-      this.userId = userId;
-      this.itemId = itemId;
-    }
   }
 }
