@@ -42,39 +42,60 @@ public class Application implements CommandLineRunner {
   @Override
   public void run(String... strings) {
     List<BigInteger> tagIdsWithExistingScores = tastePreferencesRepository.retrieveTagIdsWithExistingScores();
-
     List<TastePreference> allTastePreferences = tastePreferencesRepository.retrieveAll();
     Map<BigInteger, Set<BigInteger>> tagIdAndUsersWhoScoredIt = buildTagUsersMapping(allTastePreferences);
     calculateAndInsertCosineSimilarity(allTastePreferences, tagIdAndUsersWhoScoredIt, tagIdsWithExistingScores);
+    calculateAndInsertLogLikelihoodSimilarity(tagIdAndUsersWhoScoredIt, tagIdsWithExistingScores);
   }
 
-  /**
-   * Builds a map which contains for every tag_id the list of users who have scores for it.
-   */
-  private Map<BigInteger, Set<BigInteger>> buildTagUsersMapping(List<TastePreference> allTastePreferences) {
-    Map<BigInteger, Set<BigInteger>> tagUsersMapping = new HashMap<>();
-    for (TastePreference tastePreference : allTastePreferences) {
-      Set<BigInteger> listOfUsers = tagUsersMapping.get(tastePreference.getItemId());
-      if (listOfUsers == null) {
-        Set<BigInteger> usersList = new HashSet();
-        usersList.add(tastePreference.getUserId());
-        tagUsersMapping.put(tastePreference.getItemId(), usersList);
-      } else {
-        listOfUsers.add(tastePreference.getUserId());
+  private void calculateAndInsertLogLikelihoodSimilarity(Map<BigInteger, Set<BigInteger>> tagIdAndUsersWhoScoredIt, List<BigInteger> listOfTagIds) {
+    List<TagSimilarity> tagSimilarities = new ArrayList<>();
+    for (int indexOfTagIdA = 0; indexOfTagIdA < listOfTagIds.size() - 1; indexOfTagIdA++) {
+      LOG.info("This is the n: " + indexOfTagIdA + " iteration");
+      for (int indexOfTagIdB = indexOfTagIdA + 1; indexOfTagIdB < listOfTagIds.size(); indexOfTagIdB++) {
+        int nrOfTimesTheEventsOccurredTogether =
+            CollectionUtils.intersection(tagIdAndUsersWhoScoredIt.get(listOfTagIds.get(indexOfTagIdA)),
+                                         tagIdAndUsersWhoScoredIt.get(listOfTagIds.get(indexOfTagIdB))).size();
+        int nrOfTimesOnlyTheFirst = tagIdAndUsersWhoScoredIt.get(listOfTagIds.get(indexOfTagIdA)).size() - nrOfTimesTheEventsOccurredTogether;
+        int nrOfTimesOnlyTheSecond = tagIdAndUsersWhoScoredIt.get(listOfTagIds.get(indexOfTagIdB)).size() - nrOfTimesTheEventsOccurredTogether;
+        int nrOfTimesSomethingElseOccurred =
+            tagIdAndUsersWhoScoredIt.size() - nrOfTimesOnlyTheFirst - nrOfTimesOnlyTheSecond + nrOfTimesTheEventsOccurredTogether;
+
+        double logLikelihoodRatio =
+            Similarity.logLikelihoodRatio(nrOfTimesTheEventsOccurredTogether, nrOfTimesOnlyTheSecond, nrOfTimesOnlyTheFirst,
+                                          nrOfTimesSomethingElseOccurred);
+        double logLikelihoodSimilarity = 1.0 - (1.0 / logLikelihoodRatio);
+        TagSimilarity tagSimilarity = new TagSimilarity();
+        tagSimilarity.setTagIdA(listOfTagIds.get(indexOfTagIdA).intValue());
+        tagSimilarity.setTagIdB(listOfTagIds.get(indexOfTagIdB).intValue());
+        tagSimilarity.setSimilarity((float) logLikelihoodSimilarity);
+
+        TagSimilarity tagSimilarityMirror = new TagSimilarity();
+        tagSimilarityMirror.setTagIdA(listOfTagIds.get(indexOfTagIdB).intValue());
+        tagSimilarityMirror.setTagIdB(listOfTagIds.get(indexOfTagIdA).intValue());
+        tagSimilarityMirror.setSimilarity((float) logLikelihoodSimilarity);
+        tagSimilarities.add(tagSimilarity);
+        tagSimilarities.add(tagSimilarityMirror);
+
+        if (tagSimilarities.size() > 250) {
+          tagSimilarityDao.createBatchLogLikelihood(tagSimilarities);
+          tagSimilarities.clear();
+        }
       }
     }
-    return tagUsersMapping;
+    tagSimilarityDao.createBatchLogLikelihood(tagSimilarities);
   }
 
   private void calculateAndInsertCosineSimilarity(List<TastePreference> allTastePreferences,
-                                                  Map<BigInteger, Set<BigInteger>> tagIdAndUsersWithScores, List<BigInteger> listOfTagIds) {
+                                                  Map<BigInteger, Set<BigInteger>> tagIdAndUsersWhoScoredIt,
+                                                  List<BigInteger> listOfTagIds) {
     List<TagSimilarity> tagSimilarities = new ArrayList<>();
     for (int indexOfTagIdA = 0; indexOfTagIdA < listOfTagIds.size() - 1; indexOfTagIdA++) {
       LOG.info("This is the n: " + indexOfTagIdA + " iteration");
       for (int indexOfTagIdB = indexOfTagIdA + 1; indexOfTagIdB < listOfTagIds.size(); indexOfTagIdB++) {
         Collection<BigInteger> intersection =
-            CollectionUtils.intersection(tagIdAndUsersWithScores.get(listOfTagIds.get(indexOfTagIdA)),
-                                         tagIdAndUsersWithScores.get(listOfTagIds.get(indexOfTagIdB)));
+            CollectionUtils.intersection(tagIdAndUsersWhoScoredIt.get(listOfTagIds.get(indexOfTagIdA)),
+                                         tagIdAndUsersWhoScoredIt.get(listOfTagIds.get(indexOfTagIdB)));
         if (intersection.size() <= 0) {
           LOG.debug("No result found for user id pair : " + listOfTagIds.get(indexOfTagIdA) + "<>" + listOfTagIds.get(indexOfTagIdB));
           continue;
@@ -106,12 +127,29 @@ public class Application implements CommandLineRunner {
 
         if (tagSimilarities.size() > 250) {
           tagSimilarityDao.createBatchCosine(tagSimilarities);
-          LOG.info("A 250 batch size was sent, clearing the results and continue with the calculations.");
           tagSimilarities.clear();
         }
       }
     }
     tagSimilarityDao.createBatchCosine(tagSimilarities);
+  }
+
+  /**
+   * Builds a map which contains for every tag_id the list of users who have scores for it.
+   */
+  private Map<BigInteger, Set<BigInteger>> buildTagUsersMapping(List<TastePreference> allTastePreferences) {
+    Map<BigInteger, Set<BigInteger>> tagUsersMapping = new HashMap<>();
+    for (TastePreference tastePreference : allTastePreferences) {
+      Set<BigInteger> listOfUsers = tagUsersMapping.get(tastePreference.getItemId());
+      if (listOfUsers == null) {
+        Set<BigInteger> usersList = new HashSet();
+        usersList.add(tastePreference.getUserId());
+        tagUsersMapping.put(tastePreference.getItemId(), usersList);
+      } else {
+        listOfUsers.add(tastePreference.getUserId());
+      }
+    }
+    return tagUsersMapping;
   }
 
   private void retrievePreferenceVectors(List<TastePreference> allTastePreferences, List<BigInteger> listOfTagIds, int indexOfTagIdA,

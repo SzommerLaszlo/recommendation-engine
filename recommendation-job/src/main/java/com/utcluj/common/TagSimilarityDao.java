@@ -20,33 +20,36 @@ public class TagSimilarityDao {
 
   private static Logger LOG = LoggerFactory.getLogger(TagSimilarityDao.class);
 
-  private final String
-      INSERT_COSINE =
+  private final String INSERT_COSINE =
       "insert into tag_to_tag_similarity_cosine (tag_id_a,tag_id_b,similarity) values (?1, ?2, ?3) on duplicate key update similarity=?4";
-  private final String
-      INSERT_LOGLIKELIHOOD =
-      "insert into tag_to_tag_similarity_loglikelihood (tag_id_a,tag_id_b,similarity) values (?,?,?) on duplicate key update similarity=?4";
+  private final String INSERT_LOGLIKELIHOOD =
+      "insert into tag_to_tag_similarity_loglikelihood (tag_id_a,tag_id_b,similarity) values (?1,?2,?3) on duplicate key update similarity=?4";
 
   @Autowired
   private JdbcTemplate jdbcTemplate;
 
   @Transactional
-  public void createCosine(final TagSimilarity tagSimilarity) {
-    jdbcTemplate.update(connection -> {
-      PreparedStatement ps = connection.prepareStatement(INSERT_COSINE);
-      ps.setInt(1, tagSimilarity.getTagIdA());
-      ps.setInt(2, tagSimilarity.getTagIdB());
-      ps.setFloat(3, tagSimilarity.getSimilarity());
-      ps.setFloat(4, tagSimilarity.getSimilarity());
-      LOG.info(
-          "Tag similarity inserted with : " + tagSimilarity.getTagIdA() + " " + tagSimilarity.getTagIdB() + " :" + tagSimilarity.getSimilarity());
-      return ps;
-    });
+  public void createBatchCosine(final List<TagSimilarity> tagSimilarities) {
+    try {
+      jdbcTemplate.batchUpdate(INSERT_COSINE, createPreparedStatement(tagSimilarities));
+      LOG.info("Tag similarities batch of size: " + tagSimilarities.size() + " were inserted successfully!");
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 
   @Transactional
-  public void createBatchCosine(final List<TagSimilarity> tagSimilarities) {
-    jdbcTemplate.batchUpdate(INSERT_COSINE, new BatchPreparedStatementSetter() {
+  public void createBatchLogLikelihood(final List<TagSimilarity> tagSimilarities) {
+    try {
+      jdbcTemplate.batchUpdate(INSERT_LOGLIKELIHOOD, createPreparedStatement(tagSimilarities));
+      LOG.info("Tag similarities batch of size: " + tagSimilarities.size() + " were inserted successfully!");
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private BatchPreparedStatementSetter createPreparedStatement(List<TagSimilarity> tagSimilarities) throws SQLException {
+    return new BatchPreparedStatementSetter() {
       @Override
       public void setValues(PreparedStatement preparedStatement, int i) throws SQLException {
         TagSimilarity tagSimilarity = tagSimilarities.get(i);
@@ -60,21 +63,33 @@ public class TagSimilarityDao {
       public int getBatchSize() {
         return tagSimilarities.size();
       }
-    });
-    LOG.info("Tag similarities batch were inserted successfully!");
+    };
   }
 
-//  public void createLogLikelihood(final TagSimilarity tagToTagSimilarity) {
-//    jdbcTemplate.update(new PreparedStatementCreator() {
-//      @Override
-//      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-//        PreparedStatement ps = connection.prepareStatement(INSERT_LOGLIKELIHOOD);
-//        ps.setInt(1, tagToTagSimilarity.getSimilarityId().getTagIdA());
-//        ps.setInt(2, tagToTagSimilarity.getSimilarityId().getTagIdB());
-//        ps.setFloat(3, tagToTagSimilarity.getSimilarity());
-//        return ps;
-//      }
+//  @Transactional
+//  public void createCosine(final TagSimilarity tagSimilarity) {
+//    jdbcTemplate.update(connection -> {
+//      PreparedStatement ps = connection.prepareStatement(INSERT_COSINE);
+//      ps.setInt(1, tagSimilarity.getTagIdA());
+//      ps.setInt(2, tagSimilarity.getTagIdB());
+//      ps.setFloat(3, tagSimilarity.getSimilarity());
+//      ps.setFloat(4, tagSimilarity.getSimilarity());
+//      LOG.info(
+//          "Tag similarity inserted with : " + tagSimilarity.getTagIdA() + " " + tagSimilarity.getTagIdB() + " :" + tagSimilarity.getSimilarity());
+//      return ps;
 //    });
-//    LOG.info("Tag similarity inserted");
+//  }
+
+//  public void createLogLikelihood(final TagSimilarity tagSimilarity) {
+//    jdbcTemplate.update(connection -> {
+//      PreparedStatement ps = connection.prepareStatement(INSERT_LOGLIKELIHOOD);
+//      ps.setInt(1, tagSimilarity.getTagIdA());
+//      ps.setInt(2, tagSimilarity.getTagIdB());
+//      ps.setFloat(3, tagSimilarity.getSimilarity());
+//      ps.setFloat(3, tagSimilarity.getSimilarity());
+//      LOG.info(
+//          "Tag similarity inserted with : " + tagSimilarity.getTagIdA() + " " + tagSimilarity.getTagIdB() + " :" + tagSimilarity.getSimilarity());
+//      return ps;
+//    });
 //  }
 }
