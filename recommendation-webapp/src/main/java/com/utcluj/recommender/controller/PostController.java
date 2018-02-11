@@ -6,13 +6,16 @@ import com.utcluj.recommender.repositories.PostRepository;
 import com.utcluj.recommender.domain.Tag;
 import com.utcluj.recommender.domain.User;
 import com.utcluj.recommender.repositories.UserRepository;
+import com.utcluj.recommender.service.SessionService;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.mahout.cf.taste.recommender.ItemBasedRecommender;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,12 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 public class PostController {
@@ -40,9 +38,18 @@ public class PostController {
   @Autowired
   UserRepository userRepository;
 
+  @Autowired
+  SessionService sessionService;
+
   @RequestMapping("/")
   public String list(Pageable pageable, Model model) {
     Page<Post> curPage = postRepository.findAllByPostTypeIdOrderByCreationDateDesc(1, pageable);
+
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (!authentication.getName().toLowerCase().contains("anonymous")) {
+      Set<Tag> hotTopics = sessionService.retrieveHotTopics();
+      model.addAttribute("hotTopics", hotTopics);
+    }
 
     PageWrapper<Post> page = new PageWrapper<>(curPage, "/");
     model.addAttribute("page", page);
@@ -62,6 +69,40 @@ public class PostController {
     }
 
     return "post/show";
+  }
+
+  @RequestMapping("/user/{userName}")
+  public String show(@PathVariable String userName, Model model) throws Exception{
+    if (StringUtils.isEmpty(userName)) {
+      return "/";
+    }
+
+    User currentUser = userRepository.findByDisplayName(userName);
+    if (currentUser == null) {
+      return "/";
+    }
+    Set<Tag> tags = sessionService.retrieUserPreferredTags();
+    if (tags.size() == 0){
+      List<Tag> hotTopics = new ArrayList<>(sessionService.retrieveHotTopics());
+      Collections.shuffle(hotTopics);
+      tags.addAll(hotTopics.subList(0, 4));
+    }
+    List<Post> matchingPosts = new ArrayList<>();
+    // Recommendations by Question's Tags
+    matchingPosts.addAll(recommendUnansweredPostsByTags(new ArrayList<>(tags)));
+    Set<Post> recommendedPosts = new HashSet<>(3);
+    if (matchingPosts.size() > 3) {
+      Collections.shuffle(matchingPosts);
+      recommendedPosts.addAll(matchingPosts.subList(0, 3));
+    } else {
+      recommendedPosts.addAll(matchingPosts);
+    }
+
+    model.addAttribute("user", currentUser);
+    model.addAttribute("preferredTags", tags);
+    model.addAttribute("recommendations", recommendedPosts);
+
+    return "user";
   }
 
   @RequestMapping(value = "/post/save", method = RequestMethod.POST)
@@ -118,7 +159,7 @@ public class PostController {
 
     model.addAttribute("post", parentPost);
     model.addAttribute("recommendations", recommendedPosts);
-
+    sessionService.addToTodaysPreferredTags(parentPost.getTags());
     return "post/show";
   }
 
@@ -126,6 +167,24 @@ public class PostController {
     List<RecommendedItem> items = new ArrayList<>();
 
     for (Tag tag : parentPost.getTags()) {
+      items.addAll(recommender.mostSimilarItems(tag.getId(), 10));
+    }
+
+    List<Post> matchingPosts = new ArrayList<>();
+
+    for (RecommendedItem item : items) {
+      List<Post> posts = postRepository.findUnansweredByTagId(item.getItemID(), new PageRequest(0, 3));
+
+      matchingPosts.addAll(posts);
+    }
+
+    return matchingPosts;
+  }
+
+  private List<Post> recommendUnansweredPostsByTags(List<Tag> tags) throws Exception {
+    List<RecommendedItem> items = new ArrayList<>();
+
+    for (Tag tag : tags) {
       items.addAll(recommender.mostSimilarItems(tag.getId(), 10));
     }
 

@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<div layout:fragment="content" class="container" id="listContent">
+
+  <div class="row">
+    <h2 th:text="'Hey ' + ${user.getDisplayName()}" class="col-md-6">
+    </h2>
+  </div>
+  <div class="row">
+    <p>It seems that today you are most comfortable for answering in the following topics : </p>
+    <ul class="list-inline tags">
+      It seems that today you preferred the following topics:
+      <li th:each="tag : ${preferredTags}" th:text="${tag.getTag()}"></li>
+    </ul>
+  </div>
+
+  <div class="container" id="questionDetails">
+    <div id="recommendations" class="col-md-12 bg-success" th:if="${not #lists.isEmpty(recommendations)}">
+      <p>Thank you for contributing to the community today too. Since you are so knowledgeable, please consider answering
+        one of these similar questions too:</p>
+      <div th:each="recommendedPost : ${recommendations}">
+        <div><a class="bold" href="post/show.html" th:href="@{'/post/' + ${recommendedPost.id}}"
+                th:text="${recommendedPost.title}"></a>
+          <ul class="list-inline tags">
+            Tags:
+            <li th:each="recommendedPostTag : ${recommendedPost.tags}" th:text="${recommendedPostTag.tag}"></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-9">
+      <table id="listTable" class="table">
+        <tbody>
+        <tr>
+          <td>
+            <div>
+              <div th:text="'Your current reputation : ' + ${user.getReputation()}" class="text-center">1</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div>
+              <div th:text="'Your known location : ' + ${user.getLocation()}" class="text-center">1</div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div th:utext="'Your specific description: ' + ${user.getAbout()}" class="text-center">1</div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div th:text="'Your number of views: ' + ${user.getViews()}" class="text-center">1</div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div th:text="'Your last access date: ' + ${user.getLastAccessDate()}" class="text-center">1</div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div th:text="'Your number of upvotes: ' + ${user.getUpVotes()}" class="text-center">1</div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div th:text="'Your number of downvotes: ' + ${user.getDownVotes()}" class="text-center">1</div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

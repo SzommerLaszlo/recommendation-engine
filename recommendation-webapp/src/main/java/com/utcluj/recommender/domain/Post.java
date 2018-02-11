@@ -67,7 +67,7 @@ public class Post {
   @OrderBy("creationDate ASC")
   private Set<Comment> comments = new TreeSet<>(new PropertyComparator<> ("creationDate", true, true));
 
-  @OneToMany
+  @OneToMany(fetch = FetchType.EAGER)
   @JoinTable(name = "POST_TAG",
       joinColumns = @JoinColumn(name = "POST_ID"),
       inverseJoinColumns = @JoinColumn(name = "TAG_ID"))

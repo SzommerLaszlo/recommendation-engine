@@ -20,7 +20,9 @@
       <div class="col-md-6">&nbsp;</div>
       <div class="col-md-4 text-right">
         <a href="/login.html" th:href="@{/login}" sec:authorize="not hasRole('ROLE_AUTHENTICATED')">Login</a>
-        <div class="col-md-6 text-right" sec:authentication="name" sec:authorize="hasRole('ROLE_AUTHENTICATED')">User</div>
+        <div class="col-md-6 text-right">
+          <a href="/user.html" th:href="@{'/user/'+${#authentication.name}}" sec:authentication="name" sec:authorize="hasRole('ROLE_AUTHENTICATED')">User</a>
+        </div>
         <div class="col-md-6 text-left" sec:authorize="hasRole('ROLE_AUTHENTICATED')">
           <form th:action="@{/logout}" method="post">
             <input type="submit" value="Logout" id="logout"/>
