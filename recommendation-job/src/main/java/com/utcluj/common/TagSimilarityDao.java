@@ -21,9 +21,9 @@ public class TagSimilarityDao {
   private static Logger LOG = LoggerFactory.getLogger(TagSimilarityDao.class);
 
   private final String INSERT_COSINE =
-      "insert into tag_to_tag_similarity_cosine (tag_id_a,tag_id_b,similarity) values (?1, ?2, ?3) on duplicate key update similarity=?4";
+      "insert into tag_to_tag_similarity_cosine (tag_id_a,tag_id_b,similarity) values (?, ?, ?) on duplicate key update similarity=?";
   private final String INSERT_LOGLIKELIHOOD =
-      "insert into tag_to_tag_similarity_loglikelihood (tag_id_a,tag_id_b,similarity) values (?1,?2,?3) on duplicate key update similarity=?4";
+      "insert into tag_to_tag_similarity_loglikelihood (tag_id_a,tag_id_b,similarity) values (?, ?, ?) on duplicate key update similarity=?";
 
   @Autowired
   private JdbcTemplate jdbcTemplate;

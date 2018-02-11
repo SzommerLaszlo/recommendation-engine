@@ -44,8 +44,15 @@ public class Application implements CommandLineRunner {
     List<BigInteger> tagIdsWithExistingScores = tastePreferencesRepository.retrieveTagIdsWithExistingScores();
     List<TastePreference> allTastePreferences = tastePreferencesRepository.retrieveAll();
     Map<BigInteger, Set<BigInteger>> tagIdAndUsersWhoScoredIt = buildTagUsersMapping(allTastePreferences);
+    LOG.info("Starting to calculate and insert the cosine similarity: ");
+    LOG.info("######################################################################################");
     calculateAndInsertCosineSimilarity(allTastePreferences, tagIdAndUsersWhoScoredIt, tagIdsWithExistingScores);
+    LOG.info("######################################################################################");
+
+    LOG.info("Starting to calculate the log likelihood similarity :");
+    LOG.info("######################################################################################");
     calculateAndInsertLogLikelihoodSimilarity(tagIdAndUsersWhoScoredIt, tagIdsWithExistingScores);
+    LOG.info("######################################################################################");
   }
 
   private void calculateAndInsertLogLikelihoodSimilarity(Map<BigInteger, Set<BigInteger>> tagIdAndUsersWhoScoredIt, List<BigInteger> listOfTagIds) {
@@ -65,6 +72,9 @@ public class Application implements CommandLineRunner {
             Similarity.logLikelihoodRatio(nrOfTimesTheEventsOccurredTogether, nrOfTimesOnlyTheSecond, nrOfTimesOnlyTheFirst,
                                           nrOfTimesSomethingElseOccurred);
         double logLikelihoodSimilarity = 1.0 - (1.0 / logLikelihoodRatio);
+        if (logLikelihoodSimilarity < 0){
+          continue;
+        }
         TagSimilarity tagSimilarity = new TagSimilarity();
         tagSimilarity.setTagIdA(listOfTagIds.get(indexOfTagIdA).intValue());
         tagSimilarity.setTagIdB(listOfTagIds.get(indexOfTagIdB).intValue());
@@ -113,6 +123,14 @@ public class Application implements CommandLineRunner {
           continue;
         }
 
+        if (cosineSimilarity < 0){
+          continue;
+        }
+
+        //normalize the final value
+        if (cosineSimilarity >= 1) {
+          cosineSimilarity = (float) 0.99;
+        }
         TagSimilarity tagSimilarity = new TagSimilarity();
         tagSimilarity.setTagIdA(listOfTagIds.get(indexOfTagIdA).intValue());
         tagSimilarity.setTagIdB(listOfTagIds.get(indexOfTagIdB).intValue());
