@@ -17,8 +17,6 @@ public class JobCompletionListener extends JobExecutionListenerSupport {
 
   private static final Logger LOGGER = LogManager.getLogger(JobCompletionListener.class);
 
-//  private final JdbcTemplate jdbcTemplate;
-
   private long startTime;
 
   @Override

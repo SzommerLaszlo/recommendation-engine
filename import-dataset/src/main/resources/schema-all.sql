@@ -1,11 +1,13 @@
-DROP VIEW IF EXISTS taste_preferences;
+DROP VIEW IF EXISTS users_preferences;
 DROP TABLE IF EXISTS POST_TAG;
 DROP TABLE IF EXISTS TAGS;
 DROP TABLE IF EXISTS COMMENTS;
 DROP TABLE IF EXISTS VOTES;
 DROP TABLE IF EXISTS POSTS;
 DROP TABLE IF EXISTS USERS;
-DROP TABLE IF EXISTS taste_item_similarity;
+DROP TABLE IF EXISTS tag_to_tag_similarity_mahout;
+DROP TABLE IF EXISTS tag_to_tag_similarity_cosine;
+DROP TABLE IF EXISTS tag_to_tag_similarity_loglikelihood;
 
 CREATE TABLE USERS (
   ID               BIGINT   NOT NULL PRIMARY KEY,
@@ -80,7 +82,7 @@ CREATE TABLE POST_TAG (
 )
   ENGINE = InnoDB;
 
-CREATE VIEW taste_preferences AS
+CREATE VIEW users_preferences AS
   SELECT
     pp.owner_user_id           AS user_id,
     t.id                       AS item_id,
@@ -95,11 +97,27 @@ CREATE VIEW taste_preferences AS
   GROUP BY PP.OWNER_USER_ID, T.ID
   ORDER BY NULL;
 
-CREATE TABLE taste_item_similarity (
-  item_id_a  BIGINT NOT NULL,
-  item_id_b  BIGINT NOT NULL,
+CREATE TABLE tag_to_tag_similarity_mahout (
+  tag_id_a  BIGINT NOT NULL,
+  tag_id_b  BIGINT NOT NULL,
   similarity FLOAT  NOT NULL,
-  PRIMARY KEY (item_id_a, item_id_b)
+  PRIMARY KEY (tag_id_a, tag_id_b)
+)
+  ENGINE = InnoDB;
+
+CREATE TABLE tag_to_tag_similarity_cosine (
+  tag_id_a  BIGINT NOT NULL,
+  tag_id_b  BIGINT NOT NULL,
+  similarity FLOAT  NOT NULL,
+  PRIMARY KEY (tag_id_a, tag_id_b)
+)
+  ENGINE = InnoDB;
+
+CREATE TABLE tag_to_tag_similarity_loglikelihood (
+  tag_id_a  BIGINT NOT NULL,
+  tag_id_b  BIGINT NOT NULL,
+  similarity FLOAT  NOT NULL,
+  PRIMARY KEY (tag_id_a, tag_id_b)
 )
   ENGINE = InnoDB;
 

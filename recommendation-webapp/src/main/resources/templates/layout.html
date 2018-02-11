@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<head>
+  <title>Ask Ubuntu Overflow</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="/css/pagedown.css"/>
+  <link rel="stylesheet" href="/css/main.css"/>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script src="/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div id="mainNav" class="navbar navbar-inverse navbar-static-top" role="navigation">
+  <div class="container">
+    <div class="row">
+      <div class="navbar-header col-md-2">
+        <a href="/"><img src="/images/ubuntu-logo-2.png" alt="Ask Ubuntu"/></a>
+      </div>
+      <div class="col-md-6">&nbsp;</div>
+      <div class="col-md-4 text-right">
+        <a href="/login.html" th:href="@{/login}" sec:authorize="not hasRole('ROLE_AUTHENTICATED')">Login</a>
+        <div class="col-md-6 text-right">
+          <a href="/user.html" th:href="@{'/user/'+${#authentication.name}}" sec:authentication="name" sec:authorize="hasRole('ROLE_AUTHENTICATED')">User</a>
+        </div>
+        <div class="col-md-6 text-left" sec:authorize="hasRole('ROLE_AUTHENTICATED')">
+          <form th:action="@{/logout}" method="post">
+            <input type="submit" value="Logout" id="logout"/>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container" id="header">
+  <div class="row">
+    <h1 class="col-md-4">
+      <img src="/images/ubuntu-penguin.png"/><a href="/">Ubuntu<em> Overflow</em></a>
+    </h1>
+  </div>
+</div>
+<div layout:fragment="content"/>
+<footer class="footer">
+  <div class="container">
+    <div class="col-med-8">
+      <ul class="list-inline">
+        <li><a href="/">Team</a></li>
+        <li><a href="/">Services</a></li>
+        <li><a href="/">Tools</a></li>
+      </ul>
+      &copy; <span>2017</span>, Inc. All Rights Reserved.
+      <a href="/">Terms of Use</a> and
+      <a href="/">Privacy</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
