@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+
 <head>
   <title>Ask Ubuntu Overflow</title>
   <link rel="stylesheet" href="/css/bootstrap.min.css"/>
@@ -32,6 +33,7 @@
     </div>
   </div>
 </div>
+
 <div class="container" id="header">
   <div class="row">
     <h1 class="col-md-4">
@@ -39,7 +41,9 @@
     </h1>
   </div>
 </div>
+
 <div layout:fragment="content"/>
+
 <footer class="footer">
   <div class="container">
     <div class="col-med-8">
@@ -48,7 +52,7 @@
         <li><a href="/">Services</a></li>
         <li><a href="/">Tools</a></li>
       </ul>
-      &copy; <span>2017</span>, Inc. All Rights Reserved.
+      &copy; <span>2018</span>, Inc. All Rights Reserved.
       <a href="/">Terms of Use</a> and
       <a href="/">Privacy</a>
     </div>

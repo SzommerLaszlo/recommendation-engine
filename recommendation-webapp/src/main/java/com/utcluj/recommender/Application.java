@@ -12,10 +12,9 @@ import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.recommender.ItemBasedRecommender;
 import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,9 +24,8 @@ import java.util.List;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan
-@EnableAutoConfiguration
 @EnableConfigurationProperties
+@SpringBootApplication
 public class Application {
 
   public static final String MAHOUT_SIMILARITIES = "SELECT tag_id_a, tag_id_b, similarity FROM tag_to_tag_similarity_mahout";
@@ -52,11 +50,9 @@ public class Application {
     Pageable topTen = new PageRequest(0, 10);
     List<Post> hotTopics = postRepository.retrieveHotTopics(1, topTen);
     for (Post hotTopic : hotTopics) {
-      session.retrieveHotTopics().addAll(hotTopic.getTags());
+      session.addToHotTopics(hotTopic.getTags());
     }
 
     return session;
   }
-
-
 }

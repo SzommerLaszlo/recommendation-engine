@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
       layout:decorator="layout">
 <head>
@@ -30,7 +30,7 @@
     <div class="row" style="margin-bottom: 15px">
       <div class="col-md-9">
         <div class="row">
-          <div class="col-md-11" style="space">
+          <div class="col-md-11">
             <ul class="list-inline tags">
               <li th:each="curTag : ${post.tags}" th:text="${curTag.tag}"></li>
             </ul>
@@ -89,50 +89,24 @@
           <div class="col-md-12" sec:authorize="hasRole('ROLE_AUTHENTICATED')" id="yourAnswer">
             <h1>Your Answer</h1>
             <div>
-              <div class="wmd-panel">
-                <div id="wmd-button-bar"></div>
-                <textarea class="wmd-input" id="wmd-input"/>
-              </div>
-
-              <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
-
-              <form id="answerForm" action="index.html" th:action="@{/post/save}" method="post">
+              <link href="/summernote/summernote-lite.css" rel="stylesheet">
+              <script src="/summernote/summernote-lite.js"></script>
+              <form method="post" id="answerForm" action="index.html" th:action="@{/post/save}">
+                <textarea id="summernote" name="body"></textarea>
                 <input type="hidden" name="postId" id="postId" th:value="${post.id}"/>
-                <input type="hidden" name="body" id="body"/>
                 <input id="submit" type="submit" class="btn" value="Post Your Answer"/>
               </form>
+              <script>
+                $(document).ready(function() {
+                  $('#summernote').summernote();
+                });
+              </script>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <script type="application/javascript" src="/js/Markdown.Converter.js"></script>
-  <script type="application/javascript" src="/js/Markdown.Sanitizer.js"></script>
-  <script type="application/javascript" src="/js/Markdown.Editor.js"></script>
-  <script type="text/javascript" sec:authorize="hasRole('ROLE_AUTHENTICATED')">
-    (function () {
-      var converter1 = Markdown.getSanitizingConverter();
-
-      converter1.hooks.chain("preBlockGamut", function (text, rbg) {
-        return text.replace(/^ {0,3}""" *\n((?:.*?\n)+?) {0,3}""" *$/gm, function (whole, inner) {
-          return "<blockquote>" + rbg(inner) + "</blockquote>\n";
-        });
-      });
-
-      var editor1 = new Markdown.Editor(converter1);
-
-      editor1.run();
-
-      $("#answerForm").submit(function () {
-        console.log("innerHTML = " + $("#wmd-preview").html());
-        $("#body").val($("#wmd-preview").html());
-        console.log("body = " + $("#body").val());
-        return;
-      });
-    })();
-  </script>
 </div>
 </body>
 </html>

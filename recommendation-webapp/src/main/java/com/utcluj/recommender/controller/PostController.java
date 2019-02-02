@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
+
+import javax.annotation.Resource;
 
 @Controller
 public class PostController {
@@ -41,11 +44,13 @@ public class PostController {
   @Autowired
   SessionService sessionService;
 
+  @Resource
+  private AuthenticationProvider authenticationProvider;
+
   @RequestMapping("/")
   public String list(Pageable pageable, Model model) {
     Page<Post> curPage = postRepository.findAllByPostTypeIdOrderByCreationDateDesc(1, pageable);
-
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    Authentication authentication = verifyAndSetAuthentication();
     if (!authentication.getName().toLowerCase().contains("anonymous")) {
       Set<Tag> hotTopics = sessionService.retrieveHotTopics();
       model.addAttribute("hotTopics", hotTopics);
@@ -58,7 +63,8 @@ public class PostController {
 
   @RequestMapping("/post/{id}")
   public String show(@PathVariable long id, Model model) {
-    Post curPost = postRepository.findOne(id);
+    verifyAndSetAuthentication();
+    Post curPost = postRepository.findById(id).get();
 
     curPost.setViewCount(curPost.getViewCount() + 1);
     postRepository.save(curPost);
@@ -73,6 +79,7 @@ public class PostController {
 
   @RequestMapping("/user/{userName}")
   public String show(@PathVariable String userName, Model model) throws Exception{
+    verifyAndSetAuthentication();
     if (StringUtils.isEmpty(userName)) {
       return "/";
     }
@@ -108,10 +115,10 @@ public class PostController {
   @RequestMapping(value = "/post/save", method = RequestMethod.POST)
   public String save(@RequestParam(value = "postId", required = true) long parentPostId,
                      @RequestParam(value = "body", required = true) String body, Model model) throws Exception {
+    verifyAndSetAuthentication();
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
     User currentUser = userRepository.findByDisplayName(username);
-    long userId = currentUser.getId();
 
     Post post = new Post();
     post.setBody(body);
@@ -119,7 +126,7 @@ public class PostController {
     post.setOwnerUser(currentUser);
     post.setPostTypeId(2);
 
-    Post parentPost = postRepository.findOne(parentPostId);
+    Post parentPost = postRepository.findById(parentPostId).get();
     parentPost.getAnswers().add(post);
     parentPost.setAnswerCount(parentPost.getAnswerCount() + 1);
 
@@ -161,6 +168,16 @@ public class PostController {
     model.addAttribute("recommendations", recommendedPosts);
     sessionService.addToTodaysPreferredTags(parentPost.getTags());
     return "post/show";
+  }
+
+  private Authentication verifyAndSetAuthentication() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    Authentication sessionAuth = sessionService.getAuthentication();
+    if (sessionAuth != null && authentication != sessionAuth) {
+      authenticationProvider.authenticate(authentication);
+      SecurityContextHolder.getContext().setAuthentication(sessionAuth);
+    }
+    return SecurityContextHolder.getContext().getAuthentication();
   }
 
   private List<Post> recommendUnansweredPostsByParentsTags(Post parentPost) throws Exception {
