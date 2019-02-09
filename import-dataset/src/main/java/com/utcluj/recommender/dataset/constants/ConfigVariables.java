@@ -8,7 +8,7 @@ public interface ConfigVariables {
   /**
    * The number of users and their connected information (ex. posts, comments) to import.
    */
-  int NUMBER_OF_USERS_TO_IMPORT = 1000; //100000;
+  int NUMBER_OF_USERS_TO_IMPORT = 1000; //1000;
   /**
    * The path to the dataset .xml files.
    */

@@ -39,7 +39,7 @@ public class Application {
   @Bean
   ItemBasedRecommender recommender(DataSource dataSource) throws Exception {
     DataModel dataModel = new MySQLBooleanPrefJDBCDataModel(dataSource);
-    ItemSimilarity similarity = new MySQLJDBCInMemoryItemSimilarity(dataSource, LOGLIKELIHOOD_SIMILARITIES);
+    ItemSimilarity similarity = new MySQLJDBCInMemoryItemSimilarity(dataSource, MAHOUT_SIMILARITIES);
     AllSimilarItemsCandidateItemsStrategy candidateItemsStrategy = new AllSimilarItemsCandidateItemsStrategy(similarity);
     return new GenericItemBasedRecommender(dataModel, similarity, candidateItemsStrategy, candidateItemsStrategy);
   }
