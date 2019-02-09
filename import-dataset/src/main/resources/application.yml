@@ -1,8 +1,12 @@
 #Configure datasource
 spring:
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/recommendation
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/recommendation-backup?createDatabaseIfNotExist=true
     username: root
     password: root
-    schema: schema-all.sql
+    hikari:
+      schema: schema.sql
+    initialization-mode: always
+  batch:
+    initialize-schema: always
