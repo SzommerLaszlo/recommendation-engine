@@ -38,7 +38,9 @@ public class UserConfiguration {
     StaxEventItemReader<User> userReader = new StaxEventItemReader<>();
     userReader.setUnmarshaller(marshaller);
     userReader.setFragmentRootElementName("row");
-    userReader.setMaxItemCount(nrOfUsers.intValue());
+    if (nrOfUsers > 0) {
+      userReader.setMaxItemCount(nrOfUsers.intValue());
+    }
     userReader.setResource(new FileSystemResource(importDirectory + "Users.xml"));
     userReader.setStrict(true);
     return userReader;

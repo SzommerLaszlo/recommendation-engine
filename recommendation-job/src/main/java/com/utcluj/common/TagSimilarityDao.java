@@ -32,7 +32,7 @@ public class TagSimilarityDao {
   public void createBatchCosine(final List<TagSimilarity> tagSimilarities) {
     try {
       jdbcTemplate.batchUpdate(INSERT_COSINE, createPreparedStatement(tagSimilarities));
-      LOG.info("Tag similarities batch of size: " + tagSimilarities.size() + " were inserted successfully!");
+//      LOG.info("Tag similarities batch of size: " + tagSimilarities.size() + " were inserted successfully!");
     } catch (SQLException e) {
       e.printStackTrace();
     }
@@ -42,7 +42,7 @@ public class TagSimilarityDao {
   public void createBatchLogLikelihood(final List<TagSimilarity> tagSimilarities) {
     try {
       jdbcTemplate.batchUpdate(INSERT_LOGLIKELIHOOD, createPreparedStatement(tagSimilarities));
-      LOG.info("Tag similarities batch of size: " + tagSimilarities.size() + " were inserted successfully!");
+//      LOG.info("Tag similarities batch of size: " + tagSimilarities.size() + " were inserted successfully!");
     } catch (SQLException e) {
       e.printStackTrace();
     }
@@ -80,6 +80,7 @@ public class TagSimilarityDao {
 //    });
 //  }
 
+//  @Transactional
 //  public void createLogLikelihood(final TagSimilarity tagSimilarity) {
 //    jdbcTemplate.update(connection -> {
 //      PreparedStatement ps = connection.prepareStatement(INSERT_LOGLIKELIHOOD);

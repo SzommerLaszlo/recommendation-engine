@@ -7,34 +7,23 @@
   <groupId>com.utcluj.recommender</groupId>
   <artifactId>recommender-job</artifactId>
   <version>1.0.0-SNAPSHOT</version>
+  <properties>
+    <commons-collections4.version>4.3</commons-collections4.version>
+  </properties>
   <packaging>pom</packaging>
 
   <description>This module is the actual job to calculate the similarities between the tags according to the input data.</description>
 
-
-  <properties>
-    <mahout-mr.version>0.12.2</mahout-mr.version>
-    <java.version>1.8</java.version>
-  </properties>
-
   <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>1.5.10.RELEASE</version>
+    <groupId>com.utcluj.recommender</groupId>
+    <artifactId>recommendation-engine</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <dependencies>
     <dependency>
-      <groupId>org.springframework.batch</groupId>
-      <artifactId>spring-batch-core</artifactId>
-      <version>3.0.5.RELEASE</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.mahout</groupId>
       <artifactId>mahout-mr</artifactId>
-      <version>${mahout-mr.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.apache.hadoop</groupId>
@@ -61,21 +50,19 @@
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-jdbc</artifactId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
 
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
+      <scope>runtime</scope>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-collections4</artifactId>
-      <version>4.1</version>
+      <version>${commons-collections4.version}</version>
     </dependency>
   </dependencies>
 

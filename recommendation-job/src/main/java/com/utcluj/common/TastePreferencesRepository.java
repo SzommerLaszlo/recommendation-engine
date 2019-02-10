@@ -4,9 +4,7 @@ import com.utcluj.common.model.TastePreference;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
