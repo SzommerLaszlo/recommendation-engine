@@ -1,4 +1,4 @@
-package com.utcluj.common;
+package com.utcluj.common.repository;
 
 import com.utcluj.common.model.TastePreference;
 

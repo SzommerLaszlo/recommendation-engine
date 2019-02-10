@@ -1,7 +1,9 @@
 package com.utcluj;
 
-import com.utcluj.common.TagSimilarityDao;
-import com.utcluj.common.TastePreferencesRepository;
+import com.utcluj.common.algorithms.CosineSimilarity;
+import com.utcluj.common.algorithms.LogLikelihoodSimilarity;
+import com.utcluj.common.repository.TagSimilarityDao;
+import com.utcluj.common.repository.TastePreferencesRepository;
 import com.utcluj.common.model.TagSimilarity;
 import com.utcluj.common.model.TastePreference;
 
@@ -98,7 +100,7 @@ public class Application implements CommandLineRunner {
         retrievePreferenceVectors(allTastePreferences, listOfTagIds, indexOfTagIdA, indexOfTagIdB, intersection, preferenceVectorTagA,
                                   preferenceVectorTagB);
 
-        float cosineSimilarity = Similarity.calculateCosineSimilarity(preferenceVectorTagA, preferenceVectorTagB);
+        float cosineSimilarity = CosineSimilarity.calculateCosineSimilarity(preferenceVectorTagA, preferenceVectorTagB);
         if (Float.isNaN(cosineSimilarity)) {
           LOG.debug("The calculations for tags " + listOfTagIds.get(indexOfTagIdA) + " - " + listOfTagIds.get(indexOfTagIdB) +
                     " and their vectors: " + preferenceVectorTagA.toString() + "; " + preferenceVectorTagB.toString() + " is not a number !");
@@ -149,8 +151,8 @@ public class Application implements CommandLineRunner {
             tagIdAndUsersWhoScoredIt.size() - nrOfTimesOnlyTheFirst - nrOfTimesOnlyTheSecond + nrOfTimesTheEventsOccurredTogether;
 
         double logLikelihoodRatio =
-            Similarity.logLikelihoodRatio(nrOfTimesTheEventsOccurredTogether, nrOfTimesOnlyTheSecond, nrOfTimesOnlyTheFirst,
-                                          nrOfTimesSomethingElseOccurred);
+            LogLikelihoodSimilarity.logLikelihoodRatio(nrOfTimesTheEventsOccurredTogether, nrOfTimesOnlyTheSecond, nrOfTimesOnlyTheFirst,
+                                                       nrOfTimesSomethingElseOccurred);
         double logLikelihoodSimilarity = 1.0 - (1.0 / logLikelihoodRatio);
         if (logLikelihoodSimilarity < 0) {
           continue;

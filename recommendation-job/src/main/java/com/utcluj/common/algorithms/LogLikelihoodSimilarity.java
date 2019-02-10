@@ -1,31 +1,10 @@
-package com.utcluj;
-
-import java.math.BigDecimal;
-import java.util.List;
+package com.utcluj.common.algorithms;
 
 
-public class Similarity {
-  /**
-   * Method to calculate cosine similarity of vectors
-   * 1 - exactly similar (angle between them is 0)
-   * 0 - orthogonal vectors (angle between them is 90)
-   *
-   * @param vector1 - vector in the form [a1, a2, a3, ..... an]
-   * @param vector2 - vector in the form [b1, b2, b3, ..... bn]
-   * @return - the cosine similarity of vectors (ranges from 0 to 1)
-   */
-  public static float calculateCosineSimilarity(List<BigDecimal> vector1, List<BigDecimal> vector2) {
-    double dotProduct = 0.0;
-    double normA = 0.0;
-    double normB = 0.0;
-    for (int i = 0; i < vector1.size(); i++) {
-      dotProduct += vector1.get(i).intValue() * vector2.get(i).intValue();
-      normA += Math.pow(vector1.get(i).intValue(), 2);
-      normB += Math.pow(vector2.get(i).intValue(), 2);
-    }
-    return (float) (dotProduct / (Math.sqrt(normA) * Math.sqrt(normB)));
-  }
-
+/**
+ * Mathematical expression to calculate the logLikelihood similarity.
+ */
+public class LogLikelihoodSimilarity {
 
   /**
    *  Calculates the log likelihood ratio for thwo events
@@ -42,11 +21,17 @@ public class Similarity {
     double rowEntropy = entropy(k11, k12) + entropy(k21, k22);
     double columnEntropy = entropy(k11, k21) + entropy(k12, k22);
     double matrixEntropy = entropy(k11, k12, k21, k22);
-    if (rowEntropy + columnEntropy > matrixEntropy) {
+    if (rowEntropy + columnEntropy < matrixEntropy) {
       // round off error
       return 0.0;
     }
     return 2.0 * (matrixEntropy - rowEntropy - columnEntropy);
+  }
+
+  private static void checkArgument(boolean expression) {
+    if (!expression) {
+      throw new IllegalArgumentException("The element can not be negative !");
+    }
   }
 
   /**
@@ -57,7 +42,7 @@ public class Similarity {
    * Returns:
    * The entropy value for the elements
    **/
-  public static double entropy(long... elements) {
+  private static double entropy(long... elements) {
     long sum = 0;
     double result = 0.0;
     for (long element : elements) {
@@ -74,12 +59,6 @@ public class Similarity {
 
   private static double xLogX(long x) {
     return x == 0 ? 0.0 : x * Math.log(x);
-  }
-
-  public static void checkArgument(boolean expression) {
-    if (!expression) {
-      throw new IllegalArgumentException("The element can not be negative !");
-    }
   }
 
 }
