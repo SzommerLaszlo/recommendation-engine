@@ -43,7 +43,6 @@ public class SessionService {
   }
 
   public void resetValues() {
-    this.hotTopics = new HashSet<>();
     this.usersTodaysTags = new HashSet<>();
     this.authentication = null;
   }
